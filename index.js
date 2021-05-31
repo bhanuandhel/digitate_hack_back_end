@@ -5,11 +5,11 @@ const cors = require("cors");
 
 const port = process.env.PORT;
 
-app.use(cors())
+// API Routes impport
+const userRoute = require('./routes/User');
 
-app.get("/", (req, res)=>{
-    return res.status(200).json({status:true, message:"Default API Route"});
-})
+app.use(cors())
+app.use("/api/user", userRoute);
 
 app.listen(port, ()=>{
     console.log("Server running at port: ", port);
