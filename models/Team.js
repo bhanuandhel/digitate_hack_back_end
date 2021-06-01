@@ -3,19 +3,18 @@ const Schema = mongoose.Schema;
 
 const moment =  require("moment");
 
-const User = new Schema({
-    username:{
+const Team = new Schema({
+    name:{
         type: String,
         required: true
     },
-    email:{
-        type:String,
-        required:true,
-        uniqure:true,
-    },
-    password:{
+    description:{
         type:String,
         required:true
+    },
+    user_id:{
+        type:Schema.Types.ObjectId,
+        ref:'users'
     },
     createdAt: {
         type: String,
@@ -23,4 +22,4 @@ const User = new Schema({
       }
 });
 
-module.exports = mongoose.model("users", User);
+module.exports = mongoose.model("teams", Team);
