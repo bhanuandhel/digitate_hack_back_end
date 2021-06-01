@@ -23,14 +23,36 @@ router.get(
     }
 );
 
+router.get(
+    "/all",
+    (req, res) => {
+        Team.find({}, {_id:0, __v:0, createdAt:0}).populate("user", ["username"]).then(teams => {
+            return res.status(200).json({
+                status: true,
+                message: "All team data",
+                team: teams
+            });
+        }).catch(error => {
+            return res.status(502).json({
+                status: false,
+                message: "Database error.",
+                error: {
+                    db_error: "some error in database"
+                }
+            });
+        })
+    }
+);
+
+
 // team route
 
 router.post(
     "/new",
     verifyToken,
     [
-    check("name").not().isEmpty().withMessage("Please enter team name").trim().escape(),
-    check("description").not().isEmpty().withMessage("Please enter description").trim().escape()
+        check("name").not().isEmpty().withMessage("Please enter team name").trim().escape(),
+        check("description").not().isEmpty().withMessage("Please enter description").trim().escape()
     ],
     (req, res) => {
 
@@ -57,7 +79,7 @@ router.post(
         const newTeam = new Team({
             name: req.body.name,
             description: req.body.description,
-            user_id: req.user.id
+            user: req.user.id
         })
 
 
@@ -68,11 +90,10 @@ router.post(
                 team: {
                     name: team.name,
                     description: team.description,
-                    user_id: team.user_id
+                    user_id: team.user
                 }
             });
         }).catch(error => {
-            console.log(error)
             return res.status(502).json({
                 status: false,
                 message: "Database error.",
