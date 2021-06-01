@@ -163,10 +163,23 @@ router.post(
             });
           }
 
+          // generate JSON web Token
+          const authToken = jwt.sign({
+              id :user._id,
+              username:user.username,
+                email:user.email
+            },
+            token_key,
+            {
+              expiresIn: 3600
+            }
+          );
+
           return res.status(200).json({
             status: true,
             message: "User login success.",
-            user: {id :user._id, username:user.username, email:user.email}
+            user: {id :user._id, username:user.username, email:user.email},
+            token : authToken
           });
       }
 
