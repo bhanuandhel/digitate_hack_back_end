@@ -7,7 +7,6 @@ const token_key = process.env.TOKEN_KEY;
 
 // import user model
 const User = require('./../models/User');
-const { findOne } = require('./../models/User');
 
 
 // middleware setup
