@@ -69,6 +69,9 @@ router.post(
         return res.status(400).json({
           status: false,
           message: "User already exists",
+		  error: {
+		  email: "email id already used"
+		  }
         });
       } else {
         let salt = bcrypt.genSaltSync(10);

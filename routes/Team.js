@@ -48,7 +48,7 @@ router.get(
 
 // my team
 
-router.post(
+router.get(
     "/my",
     verifyToken,
     (req, res) => {
