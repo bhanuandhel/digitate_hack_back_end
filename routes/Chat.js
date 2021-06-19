@@ -24,5 +24,68 @@ router.get(
 );
 
 
+// Desc: new chat insert api route
+// Method: Post
+// Access: Private
+// URl: /api/chat/new
+
+router.post(
+    "/new",
+    verifyToken,
+    [
+        check("message").not().isEmpty().withMessage("Please enter message").trim().escape(),
+        check("team").not().isEmpty().withMessage("Please provide team id").trim().escape(),
+        check("to").not().isEmpty().withMessage("Please provide to id").trim().escape()
+    ],
+    (req, res) => {
+
+             // check validation
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            let error = {};
+            for (let index = 0; index < errors.array().length; index++) {
+                error = {
+                    ...error,
+                    [errors.array()[index].param]: errors.array()[index].msg
+                }
+
+            }
+            return res.status(400).json({
+                status: false,
+                message: "Form Vlidation Error",
+                error: error
+            });
+        }
+
+
+        // save new Chat 
+
+        const newChat = new Chat({
+            message: req.body.message,
+            team: req.body.team,
+            to: req.body.to,
+            from: req.user.id
+        })
+
+
+        newChat.save().then(chat => {
+            return res.status(200).json({
+                status: true,
+                message: "New chat message save...",
+                chat: chat
+            });
+        }).catch(error => {
+            return res.status(502).json({
+                status: false,
+                message: "Database error.",
+                error: {
+                    db_error: "some error in database"
+                }
+            });
+        })
+   }
+);
+
+
 
 module.exports = router;
