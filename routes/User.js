@@ -7,6 +7,7 @@ const token_key = process.env.TOKEN_KEY;
 
 // import user model
 const User = require('./../models/User');
+const verifyToken = require('../middlewares/verify_token');
 
 
 // middleware setup
@@ -20,6 +21,49 @@ router.get(
       status: true,
       message: "Default User API Route."
     });
+  }
+);
+
+// get single user data
+
+router.get(
+  "/getUser/:userID",
+  verifyToken,
+  (req, res) => {
+    const userID = req.params.userID
+
+    if (userID != '') {
+      User.findById(userID, { password: 0, email: 0, __v: 0 }).then(user => {
+        if (user) {
+          return res.status(200).json({
+            status: true,
+            message: "User data retrieved.",
+            user: user
+          });
+        } else {
+          return res.status(404).json({
+            status: true,
+            message: "User data  not retrieved."
+          });
+        }
+      }).catch(err => {
+        return res.status(502).json({
+          status: false,
+          message: "Database error.",
+          error: {
+            db_error: "some error in database"
+          }
+        });
+      })
+    } else {
+      return res.status(400).json({
+        status: false,
+        message: "user id not provided",
+        error: {
+          user_id: "User id not provided"
+        }
+      });
+    }
   }
 );
 
@@ -69,9 +113,9 @@ router.post(
         return res.status(400).json({
           status: false,
           message: "User already exists",
-		  error: {
-		  email: "email id already used"
-		  }
+          error: {
+            email: "email id already used"
+          }
         });
       } else {
         let salt = bcrypt.genSaltSync(10);
@@ -88,7 +132,7 @@ router.post(
           return res.status(200).json({
             status: true,
             message: "User register success.",
-            user: {id :user._id, username:user.username, email:user.email}
+            user: { id: user._id, username: user.username, email: user.email }
           });
         }).catch(error => {
           return res.status(502).json({
@@ -154,35 +198,35 @@ router.post(
           }
         });
       } else {
-          let isPasswordMatch = bcrypt.compareSync(req.body.password,  user.password);
-          if(!isPasswordMatch){
-            return res.status(400).json({
-              status: false,
-              message: "Password not matched",
-              error: {
-                password: "Password not match in database"
-              }
-            });
-          }
-
-          // generate JSON web Token
-          const authToken = jwt.sign({
-              id :user._id,
-              username:user.username,
-                email:user.email
-            },
-            token_key,
-            {
-              expiresIn: 3600
+        let isPasswordMatch = bcrypt.compareSync(req.body.password, user.password);
+        if (!isPasswordMatch) {
+          return res.status(400).json({
+            status: false,
+            message: "Password not matched",
+            error: {
+              password: "Password not match in database"
             }
-          );
-
-          return res.status(200).json({
-            status: true,
-            message: "User login success.",
-            user: {id :user._id, username:user.username, email:user.email},
-            token : authToken
           });
+        }
+
+        // generate JSON web Token
+        const authToken = jwt.sign({
+          id: user._id,
+          username: user.username,
+          email: user.email
+        },
+          token_key,
+          {
+            expiresIn: 3600
+          }
+        );
+
+        return res.status(200).json({
+          status: true,
+          message: "User login success.",
+          user: { id: user._id, username: user.username, email: user.email },
+          token: authToken
+        });
       }
 
 

@@ -88,4 +88,58 @@ router.post(
 
 
 
+// Desc: get user detail in a chat team api route
+// Method: Post
+// Access: Private
+// URl: /api/chat/getTeamUser 
+
+router.post(
+    "/getTeamUser",
+    verifyToken,
+    [
+        check("team").not().isEmpty().withMessage("Please enter team id").trim().escape()
+    ],
+    (req, res) => {
+
+             // check validation
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            let error = {};
+            for (let index = 0; index < errors.array().length; index++) {
+                error = {
+                    ...error,
+                    [errors.array()[index].param]: errors.array()[index].msg
+                }
+
+            }
+            return res.status(400).json({
+                status: false,
+                message: "Form Vlidation Error",
+                error: error
+            });
+        }
+
+
+        // get all chat team user
+
+        Chat.find({team: req.body.team}).distinct("from").then(users =>{
+            return res.status(200).json({
+                status: true,
+                message: "Tesm user id retreived..",
+                users: users
+            });
+        }).catch(err =>{
+            return res.status(502).json({
+                status: false,
+                message: "Database error.",
+                error: {
+                    db_error: "some error in database"
+                }
+            });
+        })
+   }
+);
+
+
+
 module.exports = router;
