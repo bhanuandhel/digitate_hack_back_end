@@ -35,7 +35,7 @@ router.post(
     [
         check("message").not().isEmpty().withMessage("Please enter message").trim().escape(),
         check("team").not().isEmpty().withMessage("Please provide team id").trim().escape(),
-        check("to").not().isEmpty().withMessage("Please provide to id").trim().escape()
+        // check("to").not().isEmpty().withMessage("Please provide to id").trim().escape()
     ],
     (req, res) => {
 
@@ -63,7 +63,6 @@ router.post(
         const newChat = new Chat({
             message: req.body.message,
             team: req.body.team,
-            to: req.body.to,
             from: req.user.id
         })
 
